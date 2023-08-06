@@ -1,5 +1,6 @@
-import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
+//reducer.js
 
+import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 const initialState = {
   loading: false,
   items: [],
@@ -38,6 +39,40 @@ export const addItems = createAsyncThunk(
   }
 );
 
+export const updateItem = createAsyncThunk(
+  "updateItem",
+  async ({ id, itemData }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`http://localhost:1234/itemlist/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(itemData)
+      });
+      const data = await res.json();
+      return { id, data };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// export const editItem = createAsyncThunk(
+//   "editItem",
+//   async ({ id }, { rejectWithValue }) => {
+//     try {
+//       const res = await fetch(`http://localhost:1234/itemlist/${id}`, {
+//         method: "GET"
+//       });
+//       const data = await res.json();
+//       return { id, data };
+//     } catch (error) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 export const deleteItem = createAsyncThunk(
   "deleteItem",
   async (id, { rejectWithValue }) => {
@@ -66,6 +101,27 @@ const itemsReducer = createReducer(initialState, (builder) => {
       state.loading = false;
       state.error = action.payload;
     })
+
+    // .addCase(editItem.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // })
+    // .addCase(editItem.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   // No need to update the entire items array
+    //   // Instead, you can update the item that matches the edited item's id
+    //   const editedItemIndex = state.items.findIndex(
+    //     (item) => item.id === action.payload.id
+    //   );
+    //   if (editedItemIndex !== -1) {
+    //     state.items[editedItemIndex] = action.payload.data;
+    //   }
+    // })
+    // .addCase(editItem.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload;
+    // })
+
     .addCase(addItems.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -75,6 +131,22 @@ const itemsReducer = createReducer(initialState, (builder) => {
       state.items.push(action.payload);
     })
     .addCase(addItems.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
+    .addCase(updateItem.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateItem.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = state.items.map((item) =>
+        item.id === action.payload.id
+          ? { ...item, ...action.payload.data }
+          : item
+      );
+    })
+    .addCase(updateItem.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
     })
