@@ -12,8 +12,10 @@
     "react-dom": "18.2.0",
     "react-redux": "8.0.5",
     "react-scripts": "5.0.1",
+    "reactofy-component-library": "^0.1.2",
     "redux": "4.2.1",
-    "redux-thunk": "2.4.2"
+    "redux-thunk": "2.4.2",
+    "suvendu-library": "^0.1.6"
   },
   "devDependencies": {
     "@babel/runtime": "7.13.8",
